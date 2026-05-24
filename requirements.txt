@@ -1,0 +1,27 @@
+# Core
+python-dotenv>=1.0.0
+supabase>=2.0.0
+
+# Market data
+yfinance>=0.2.36
+nsepy>=0.8           # NSE delivery data (install from GitHub if PyPI version is stale)
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Fundamentals scraping
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0          # faster HTML parser for BeautifulSoup
+
+# News
+feedparser>=6.0.10   # RSS feeds
+
+# Dev / utils
+tqdm>=4.65.0         # progress bars for backfill
+loguru>=0.7.0        # optional: nicer logging
+
+# ── install ──────────────────────────────────────────────────
+# pip install -r requirements.txt
+#
+# Note on nsepy: if the PyPI version is outdated, install from GitHub:
+# pip install git+https://github.com/swanandx/nsepy.git

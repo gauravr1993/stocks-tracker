@@ -1,0 +1,18 @@
+# ============================================================
+# CRON SCHEDULE — add to crontab via `crontab -e`
+# All times IST (UTC+5:30)
+# ============================================================
+
+# Daily update: 8:00 AM IST (2:30 AM UTC) — before 9:15 AM market open
+30 2 * * 1-5 cd /path/to/nifty-intel && python scripts/run_ingestion.py daily >> logs/daily.log 2>&1
+
+# Weekly fundamentals refresh: Sunday 9:00 PM IST (3:30 PM UTC)
+# Uses Screener for more accurate data, runs weekly to be polite
+30 15 * * 0 cd /path/to/nifty-intel && python scripts/run_ingestion.py fundamentals --source screener >> logs/fundamentals.log 2>&1
+
+# ============================================================
+# NOTES:
+# - Weekdays only (1-5) for daily prices
+# - Log rotation: add `logrotate` config or use >> with date suffix
+# - For cloud: use GitHub Actions, Cloud Scheduler, or Railway cron
+# ============================================================

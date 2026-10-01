@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
       - run: pip install -r requirements.txt
-      - run: python scripts/run_ingestion.py daily
+      - run: python scheduler/run_ingestion.py daily
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}

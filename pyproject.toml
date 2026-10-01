@@ -1,0 +1,7 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.backends.legacy:BuildBackend"
+
+[project]
+name = "nifty-intel"
+version = "0.1.0"

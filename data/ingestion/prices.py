@@ -118,8 +118,7 @@ def fetch_symbol(symbol: str,
             start=start.isoformat(),
             end=end_dt.isoformat(),
             auto_adjust=False,
-            progress=False,
-            show_errors=False,
+            progress=False
         )
 
         if df.empty:

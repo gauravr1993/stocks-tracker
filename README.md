@@ -81,7 +81,7 @@ nifty-intel/
 python scripts/run_ingestion.py universe
 
 # Update specific symbols
-python scripts/run_ingestion.py prices --symbols RELIANCE,TCS,HDFCBANK
+python scripts/run_ingestion.py prices --symbols RELIANCE.NS,TCS.NS,HDFCBANK.NS
 
 # Refresh fundamentals from Screener (slower, more accurate)
 python scripts/run_ingestion.py fundamentals --source screener
@@ -89,3 +89,9 @@ python scripts/run_ingestion.py fundamentals --source screener
 # Fetch last 30 days of news
 python scripts/run_ingestion.py news --days 30
 ```
+
+##How to add a scraper:
+Adding a new source later is just three steps:
+1. create your_source.py subclassing BaseNewsScraper
+2. implement fetch_page() and parse_date()
+3. then add it to the SCRAPERS dict in ingest_news.py.

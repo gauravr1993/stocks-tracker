@@ -24,7 +24,7 @@ def get_client() -> Client:
     global _client
     if _client is None:
         url = os.environ["SUPABASE_URL"]
-        key = os.environ["SUPABASE_KEY"]
+        key = os.environ["NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"]
         _client = create_client(url, key)
         logger.info("Supabase client initialised — %s", url)
     return _client
@@ -68,12 +68,50 @@ def upsert_rows(table: str, rows: list[dict[str, Any]], on_conflict: str) -> dic
         return {"count": 0}
 
     client = get_client()
+    print(f"Upserting {len(rows)} rows into {table} (on_conflict={on_conflict})")
     response = (
         client.table(table)
         .upsert(rows, on_conflict=on_conflict)
         .execute()
     )
     return response.data
+
+
+@retry()
+def insert_rows(table: str, rows: list[dict[str, Any]]) -> dict:
+    """
+    Insert rows, silently ignoring duplicates (no ON CONFLICT needed).
+    Use for: news_events and any table without a clean unique constraint.
+    Inserts rows one by one, skipping any that cause duplicate key errors.
+    """
+    if not rows:
+        return {"count": 0}
+ 
+    client = get_client()
+    inserted_count = 0
+    skipped_count = 0
+    
+    for row in rows:
+        try:
+            response = (
+                client.table(table)
+                .insert([row], returning="minimal")
+                .execute()
+            )
+            inserted_count += 1
+        except Exception as exc:
+            # Skip duplicate key errors and continue with next row
+            if "duplicate" in str(exc).lower() or "unique" in str(exc).lower():
+                skipped_count += 1
+                logger.debug(f"Skipped duplicate row in {table}: {exc}")
+            else:
+                # Re-raise non-duplicate errors
+                raise
+    
+    if skipped_count > 0:
+        logger.info(f"Inserted {inserted_count} rows into {table}, skipped {skipped_count} duplicates")
+    
+    return {"count": inserted_count}
 
 
 @retry()

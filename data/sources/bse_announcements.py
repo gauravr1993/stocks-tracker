@@ -13,7 +13,7 @@ from typing import Optional
 
 import requests
 
-from data.storage.db import upsert_rows
+from data.storage.db import upsert_rows, insert_rows
 
 logger = logging.getLogger(__name__)
 
@@ -178,7 +178,7 @@ def ingest_bse_announcements(
 
     # Upsert — use bse_ann_id as dedup key
     if rows:
-        upsert_rows("news_events", rows, on_conflict="bse_ann_id")
+        insert_rows("news_events", upsert_rows)  # uses uq_news_rss partial index  # uses uq_news_bse_ann_id partial index
 
     duration = _time.time() - t0
     logger.info("BSE announcements ingestion done — %d rows in %.1fs", len(rows), duration)

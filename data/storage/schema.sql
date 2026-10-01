@@ -125,6 +125,16 @@ create table if not exists news_events (
     created_at      timestamptz not null default now()
 );
 
+-- Unique constraint for BSE announcements dedup
+create unique index if not exists uq_news_bse_ann_id
+    on news_events(bse_ann_id)
+    where bse_ann_id is not null;
+
+-- Unique constraint for RSS rows (no bse_ann_id) — dedup by source + headline + date
+create unique index if not exists uq_news_rss
+    on news_events(source, event_date, headline)
+    where bse_ann_id is null;
+
 create index if not exists idx_news_symbol_date on news_events(symbol, event_date desc);
 create index if not exists idx_news_date on news_events(event_date desc);
 create index if not exists idx_news_unprocessed on news_events(is_processed) where is_processed = false;

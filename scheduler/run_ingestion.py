@@ -60,7 +60,7 @@ def run_fundamentals(symbols=None, source="yfinance"):
 
 def run_news(days=7, symbols=None):
     from data.sources.bse_announcements import ingest_bse_announcements, fetch_rss_news
-    from data.storage.db import upsert_rows
+    from data.storage.db import insert_rows
 
     # BSE announcements
     result = ingest_bse_announcements(symbols=symbols, days_back=days)
@@ -69,7 +69,7 @@ def run_news(days=7, symbols=None):
     # RSS news
     rows = fetch_rss_news(symbols=symbols)
     if rows:
-        upsert_rows("news_events", rows, on_conflict="bse_ann_id")
+        insert_rows("news_events", rows)
     logger.info("RSS news: %d articles", len(rows))
 
 
@@ -96,11 +96,18 @@ def cmd_daily(args):
     run_universe()           # check for constituent changes
     run_prices()             # yesterday's closing prices
     run_news(days=2)         # last 48hr news + BSE announcements
+    run_scraped_news(days=2) # ET Markets + MoneyControl scrape
+
+    from agents.sentiment.agent import run_sentiment_agent
+    run_sentiment_agent(days_back=2)    # run sentiment agent on last 48hr news
+
+    from data.ingestion.snapshots import ingest_score_snapshot
+    ingest_score_snapshot()    
 
     # Fundamentals weekly (run on Monday only to avoid hammering Screener)
     from datetime import date
-    if date.today().weekday() == 0:    # Monday
-        run_fundamentals(source="yfinance")
+    # if date.today().weekday() == 0:    # Monday
+    #     run_fundamentals(source="yfinance")
 
     logger.info("Daily update complete.")
 
@@ -119,10 +126,21 @@ def cmd_fundamentals(args):
     run_fundamentals(symbols=symbols, source=args.source)
 
 
+def run_scraped_news(sources=None, days=2, pages=5, use_groq=True):
+    from data.sources.scrapers.ingest_news import ingest_scraped_news
+    result = ingest_scraped_news(sources=sources, days_back=days, pages=pages, use_groq=use_groq)
+    logger.info("Scraped news: %s", result)
+
+
 def cmd_news(args):
     symbols = args.symbols.split(",") if args.symbols else None
     run_news(days=args.days, symbols=symbols)
 
+
+def cmd_news_scrape(args):
+    sources = args.sources.split(",") if args.sources else None
+    run_scraped_news(sources=sources, days=args.days, pages=args.pages, use_groq=not args.no_groq)
+ 
 
 def main():
     parser = argparse.ArgumentParser(description="NIFTY Intel data ingestion")
@@ -153,6 +171,14 @@ def main():
     p_fund.add_argument("--symbols", help="Comma-separated symbols")
     p_fund.add_argument("--source", default="yfinance", choices=["yfinance", "screener"])
     p_fund.set_defaults(func=cmd_fundamentals)
+
+    # news-scrape
+    p_scrape = sub.add_parser("news-scrape", help="Scrape ET Markets + MoneyControl")
+    p_scrape.add_argument("--sources", help="Comma-separated: et_markets,moneycontrol")
+    p_scrape.add_argument("--days",    type=int, default=2)
+    p_scrape.add_argument("--pages",   type=int, default=5)
+    p_scrape.add_argument("--no-groq", action="store_true", help="Disable Groq LLM fallback")
+    p_scrape.set_defaults(func=cmd_news_scrape)
 
     # news
     p_news = sub.add_parser("news", help="Ingest BSE announcements and RSS news")

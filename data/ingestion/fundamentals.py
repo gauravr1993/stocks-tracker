@@ -29,7 +29,7 @@ def fetch_fundamentals_yf(symbol: str) -> Optional[dict]:
     Fetch fundamental ratios from yfinance.
     Fast but PE/PB may be TTM and slightly stale.
     """
-    ticker = yf.Ticker(f"{symbol}.NS")
+    ticker = yf.Ticker(f"{symbol}")
 
     try:
         info = ticker.info

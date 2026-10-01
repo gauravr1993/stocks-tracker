@@ -265,7 +265,7 @@ if __name__ == "__main__":
     import argparse, json
 
     logging.basicConfig(
-        level   = logging.INFO,
+        level   = logging.WARNING,
         format  = "%(asctime)s  %(levelname)-7s  %(name)s — %(message)s",
         datefmt = "%H:%M:%S",
     )

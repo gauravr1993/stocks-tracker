@@ -27,7 +27,7 @@ from dotenv import load_dotenv
 load_dotenv("config/.env")
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.WARNING,
     format="%(asctime)s  %(levelname)-7s  %(name)s — %(message)s",
     datefmt="%H:%M:%S",
 )

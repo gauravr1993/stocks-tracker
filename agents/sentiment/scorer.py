@@ -155,7 +155,7 @@ def _fallback_results(articles: list[dict]) -> list[dict]:
 
 def score_batch(
     articles:   list[dict],
-    batch_size: int   = 3,     # reduced from 5 — prevents response truncation
+    batch_size: int   = 5,     # reduced from 5 — prevents response truncation
     max_retries:int   = 3,
     retry_delay:float = 5.0,
 ) -> list[dict]:

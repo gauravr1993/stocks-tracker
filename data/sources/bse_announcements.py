@@ -10,6 +10,7 @@ import logging
 import time
 from datetime import date, timedelta
 from typing import Optional
+import feedparser
 
 import requests
 
@@ -195,7 +196,6 @@ def fetch_rss_news(
 
     Returns list of news_events rows.
     """
-    import feedparser
     from data.sources.universe import get_active_symbols
 
     active = set(get_active_symbols() if symbols is None else symbols)

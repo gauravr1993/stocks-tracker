@@ -43,7 +43,6 @@ CATEGORY_MAP = {
     "Others":                 "other",
 }
 
-
 def _prime_session() -> requests.Session:
     """Create a session with BSE cookies primed."""
     session = requests.Session()

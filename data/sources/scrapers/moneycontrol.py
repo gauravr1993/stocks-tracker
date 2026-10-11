@@ -36,7 +36,6 @@ _DATE_PATTERNS = [
     (r"(\d{4}-\d{2}-\d{2})",                     "%Y-%m-%d"),
 ]
 
-
 class MoneyControlScraper(BaseNewsScraper):
 
     source_name = "moneycontrol"

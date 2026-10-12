@@ -60,13 +60,16 @@ def run_fundamentals(symbols=None, source="yfinance"):
 
 def run_news(days=7, symbols=None):
     from data.sources.bse_announcements import ingest_bse_announcements, fetch_rss_news
+    from data.sources.bse_rss import ingest_bse_rss
     from data.storage.db import insert_rows
 
     # BSE announcements
-    result = ingest_bse_announcements(symbols=symbols, days_back=days)
-    logger.info("BSE announcements: %s", result)
+    # result = ingest_bse_announcements(symbols=symbols, days_back=days)
+    # logger.info("BSE announcements: %s", result)
 
     # RSS news
+    ingest_bse_rss()
+    
     rows = fetch_rss_news(symbols=symbols)
     if rows:
         insert_rows("news_events", rows)

@@ -47,6 +47,7 @@ def _fetch_unscored(
         client.table("news_events")
         .select("id, symbol, headline, summary, source, category, event_date")
         .is_("sentiment_score", "null")
+        .or_("category.is.null,category.not.in.(board_meeting,earnings_call,compliance,esop,governance,attachment_only,board_outcome)")
         .gte("event_date", since)
         .order("event_date", desc=True)
         .limit(limit)

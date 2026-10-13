@@ -6,6 +6,9 @@ import logging
 import requests
 import time
 import re   
+from zoneinfo import ZoneInfo
+
+IST = ZoneInfo("Asia/Kolkata")
 
 BSE_ANN_RSS = "https://beta.bseindia.com/data/xml/announcements.xml"
 logger = logging.getLogger(__name__)
@@ -27,7 +30,7 @@ def classify_bse(text: str) -> str:
     if t.startswith("profile of"):
         return "governance"
     if ("certificate under reg" in t or "newspaper advertisement" in t
-            or t.startswith("intimation under regulation 30")):
+            or t.startswith("intimation under regulation 30") and len(t) < 200):
         return "compliance"
     return "other"
 
@@ -42,18 +45,20 @@ def fetch_bse_rss_announcements() -> list[dict]:
     resp = requests.get(BSE_ANN_RSS, headers=HEADERS, timeout=15)
     resp.raise_for_status()  # raise an exception for non-200 responses
     feed = feedparser.parse(resp.content)
+    if not feed.entries:
+        raise RuntimeError("BSE feed returned 200 but no entries")
     rows = []
     for entry in feed.entries:
         scripcode = str(getattr(entry, "scripcode", "")).strip()
         symbol = scripcode_map.get(scripcode)
         if not symbol:
             continue  # not in our universe — this filters out the firehose noise
-        
+        raw_pub = entry.get("published", "")
         try:
-            pub_dt = datetime.strptime(entry.get("published", ""), "%d-%b-%Y %H:%M:%S")
+            pub_dt = datetime.strptime(raw_pub, "%d-%b-%Y %H:%M:%S").replace(tzinfo=IST)
         except ValueError:
-            logger.warning("Unparseable BSE pubDate: %r", entry.get("pubdate"))
-            pub_dt = datetime.now()
+            logger.warning("Unparseable BSE pubDate: %r", raw_pub)
+            pub_dt = datetime.now(IST)
 
         desc = (entry.get("description", "") or "").strip()
         category = classify_bse(desc) if desc else "attachment_only"  # no text, nothing to score
@@ -79,9 +84,14 @@ def fetch_bse_rss_announcements() -> list[dict]:
 
 def ingest_bse_rss() -> dict:
     t0 = time.time()
-    rows = fetch_bse_rss_announcements()
-    if rows:
-        upsert_rows("news_events", rows, on_conflict="symbol,url,bse_scripcode")
-    duration = time.time() - t0
-    log_ingestion(job_name="bse_rss", status="success", inserted=len(rows), duration=duration)
+    try:
+        rows = fetch_bse_rss_announcements()
+        if rows:
+            upsert_rows("news_events", rows, on_conflict="symbol,url,bse_scripcode")
+    except Exception as exc:
+        log_ingestion(job_name="bse_rss", status="failed",
+                      duration=time.time() - t0, inserted=0, error=str(exc))
+        raise
+    log_ingestion(job_name="bse_rss", status="success",
+                  duration=time.time() - t0, inserted=len(rows))
     return {"inserted": len(rows)}

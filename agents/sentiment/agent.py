@@ -24,6 +24,9 @@ load_dotenv(os.path.join(_root, "config", ".env"))
 
 from agents.sentiment.scorer import score_batch
 from data.storage.db import get_client, log_ingestion
+from data.sources.bse_rss import NON_SCORABLE
+
+cats = ",".join(NON_SCORABLE)
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +50,7 @@ def _fetch_unscored(
         client.table("news_events")
         .select("id, symbol, headline, summary, source, category, event_date")
         .is_("sentiment_score", "null")
-        .or_("category.is.null,category.not.in.(board_meeting,earnings_call,compliance,esop,governance,attachment_only,board_outcome)")
+        .or_(f"category.is.null,category.not.in.({cats})")
         .gte("event_date", since)
         .order("event_date", desc=True)
         .limit(limit)

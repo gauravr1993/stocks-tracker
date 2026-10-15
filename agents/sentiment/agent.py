@@ -422,8 +422,9 @@ def get_sentiment_rankings(
 
     from collections import defaultdict
     by_symbol = defaultdict(list)
+    universe = {r["symbol"] for r in client.table("nifty_constituents").select("symbol").execute().data}
     for r in rows:
-        if r["symbol"]:
+        if r["symbol"] in universe:
             by_symbol[r["symbol"]].append(r["sentiment_score"])
 
     ranked = [

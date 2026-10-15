@@ -2,7 +2,7 @@
 name: Daily Ingestion
 on:
   schedule:
-    - cron: '11 6 * * 1-5'   # 6:11 AM IST, weekdays
+    - cron: '11 7 * * 1-5'   # 6:11 AM IST, weekdays
       timezone: 'Asia/Kolkata'
   workflow_dispatch: {}       # lets you trigger manually from the Actions tab
 

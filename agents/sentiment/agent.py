@@ -65,26 +65,21 @@ def _fetch_unscored(
 # ── Write scores back ─────────────────────────────────────────────────────────
 
 def _write_scores(scored: list[dict]) -> int:
-    """
-    Update news_events rows with sentiment results.
-    Stores reasoning in a metadata JSONB column.
-    Returns number of rows updated.
-    """
-    client  = get_client()
-    updated = 0
-
+    client, updated = get_client(), 0
     for item in scored:
+        if item.get("failed"):
+            continue                       # leave unscored so the next run retries it
         try:
-            client.table("news_events").update({
-                "sentiment_score": item["score"],
-                "sentiment_label": item["label"],
-                "is_processed":    True,
-                "metadata":        {"reasoning": item.get("reasoning", "")},
-            }).eq("id", item["id"]).execute()
+            meta = {"reasoning": item.get("reasoning", "")}
+            if item.get("relevant", True) is False:
+                patch = {"category": "irrelevant", "is_processed": True, "metadata": meta}
+            else:
+                patch = {"sentiment_score": item["score"], "sentiment_label": item["label"],
+                         "is_processed": True, "metadata": meta}
+            client.table("news_events").update(patch).eq("id", item["id"]).execute()
             updated += 1
         except Exception as exc:
             logger.warning("Failed to update row %s: %s", item["id"], exc)
-
     return updated
 
 
@@ -212,7 +207,8 @@ def run_sentiment_agent(
     if not articles:
         logger.info("No unscored articles found — nothing to do")
         return {"mood": "neutral", "summary": "No new articles to score.", "total_articles": 0}
-
+    names = {r["symbol"]: r["company_name"] for r in
+         get_client().table("nifty_constituents").select("symbol, company_name").execute().data}
     # 2. Prepare batch input (id must be string for JSON round-trip)
     batch_input = [
         {
@@ -220,6 +216,7 @@ def run_sentiment_agent(
             "headline": a.get("headline", ""),
             "summary":  a.get("summary",  "") or "",
             "symbol":   a.get("symbol",   "") or "",
+            "company": names.get(a.get("symbol") or "", ""),
         }
         for a in articles
     ]

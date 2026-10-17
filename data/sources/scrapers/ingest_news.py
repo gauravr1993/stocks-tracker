@@ -19,8 +19,7 @@ logger = logging.getLogger(__name__)
 
 # All registered scrapers — add new ones here
 SCRAPERS = {
-    "et_markets":   EconomicTimesScraper,
-    "moneycontrol": MoneyControlScraper,
+    "et_markets":   EconomicTimesScraper
 }
 
 

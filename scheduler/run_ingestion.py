@@ -39,6 +39,10 @@ def run_universe():
     result = sync_universe()
     logger.info("Universe sync: %s", result)
 
+def run_google_news():
+    from data.sources.google_news import ingest_google_news
+    r = ingest_google_news()
+    logger.info("Google News: %d inserted, failed=%s, dropped=%s", r["inserted"], r["failed"], r["dropped"])
 
 def run_prices(symbols=None, backfill=False):
     from data.ingestion.prices import ingest_prices
@@ -100,9 +104,9 @@ def cmd_daily(args):
     run_prices()             # yesterday's closing prices
     run_news(days=2)         # last 48hr news + BSE announcements
     run_scraped_news(days=2) # ET Markets + MoneyControl scrape
-
+    
     from agents.sentiment.agent import run_sentiment_agent
-    run_sentiment_agent(days_back=2)    # run sentiment agent on last 48hr news
+    run_sentiment_agent(days_back=2, limit=800)    # run sentiment agent on last 48hr news
 
     from data.ingestion.snapshots import ingest_score_snapshot
     ingest_score_snapshot()    

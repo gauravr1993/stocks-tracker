@@ -14,7 +14,7 @@ BSE_ANN_RSS = "https://beta.bseindia.com/data/xml/announcements.xml"
 logger = logging.getLogger(__name__)
 
 NON_SCORABLE = ["board_meeting", "earnings_call", "compliance", "esop", "governance",
-                "attachment_only", "board_outcome", "shareholding", "credit_rating"]
+                "attachment_only", "board_outcome", "shareholding", "credit_rating", "irrelevant"]
 
 def classify_bse(text: str) -> str:
     t = text.lower().strip()

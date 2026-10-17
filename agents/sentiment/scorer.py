@@ -43,12 +43,23 @@ LABEL THRESHOLDS:
 - negative : score <= -0.2
 - neutral  : -0.2 < score < 0.2
 
+RELEVANCE:
+- "relevant" is true only if the article is substantively about the named stock's company and
+  would matter to someone holding it. Its subsidiaries and brands count (Jio for Reliance,
+  Tanishq for Titan, Blinkit for Eternal).
+- "relevant" is false for: market or index wraps, price-quote pages, a different company with a
+  similar name (Reliance Power, SBI Card, Trent Boult), obituaries and sport, vehicle reviews
+  and variant comparisons, classified ads.
+- When the stock is MARKET, "relevant" is always true.
+- If "relevant" is false, set score to 0.0 and label to "neutral". It will be ignored.
+
 OUTPUT FORMAT — strict JSON array, one object per article, same order as input:
 [
   {
     "id": <article_id>,
     "score": <float -1.0 to 1.0, one decimal place>,
     "label": "<positive|neutral|negative>",
+    "relevant": <true|false>,
     "reasoning": "<one sentence, max 20 words, explain the key factor>"
   }
 ]
@@ -66,13 +77,19 @@ def _build_user_prompt(articles: list[dict]) -> str:
         sym  = art.get("symbol", "").replace(".NS", "") or "MARKET"
         head = art.get("headline", "")[:200]
         summ = art.get("summary",  "")[:150]
+        company = art.get("company", "")
+        stock = f"{sym} ({company})" if company and sym != "MARKET" else sym
         lines.append(
-            f"[{art['id']}] Stock: {sym}\n"
+            f"[{art['id']}] Stock: {stock}\n"
             f"Headline: {head}\n"
             f"Summary: {summ}\n"
         )
     return "\n".join(lines)
 
+def _to_bool(v) -> bool:
+    if isinstance(v, str):
+        return v.strip().lower() not in ("false", "no", "0")
+    return bool(v)
 
 # ── Groq client ───────────────────────────────────────────────────────────────
 
@@ -136,6 +153,7 @@ def _parse_response(raw: str, article_ids: list[str]) -> list[dict]:
                 "score":     score,
                 "label":     label,
                 "reasoning": str(item.get("reasoning", ""))[:200],
+                "relevant":  _to_bool(item.get("relevant", True)),
             })
         except Exception as exc:
             logger.debug("Skipping malformed result item: %s", exc)
@@ -146,7 +164,8 @@ def _parse_response(raw: str, article_ids: list[str]) -> list[dict]:
 def _fallback_results(articles: list[dict]) -> list[dict]:
     """Return neutral scores for all articles when API fails."""
     return [
-        {"id": str(a["id"]), "score": 0.0, "label": "neutral", "reasoning": "Scoring unavailable"}
+        {"id": str(a["id"]), "score": 0.0, "label": "neutral", 
+         "reasoning": "Scoring unavailable", "failed": True}
         for a in articles
     ]
 
@@ -232,7 +251,7 @@ def score_batch(
         aid = str(art["id"])
         out.append(results.get(aid, {
             "id": aid, "score": 0.0,
-            "label": "neutral", "reasoning": "Not scored",
+            "label": "neutral", "reasoning": "Not scored", "failed": True
         }))
 
     logger.info("Scored %d articles — pos: %d, neu: %d, neg: %d",

@@ -24,7 +24,14 @@ LEGAL_SUFFIXES = {"limited", "ltd", "corporation", "corp", "company", "co", "inc
 # also belong to a bigger foreign group (parents of Indian subsidiaries).
 AMBIGUOUS = {"eternal", "titan", "trent", "reliance", "hal", "bel", "ioc", "ltm", "rec",
              "indigo", "bosch", "siemens", "siemens energy", "hyundai", "hyundai motor",
-             "abb", "cummins", "nestle"}
+             "abb", "cummins", "nestle", "westside", "gail", "union bank"}
+
+# Names of companies NOT in the universe that share a word with one that is. Matching one
+# uses up that text (so "sbi" inside "SBI Card" is not read as State Bank) and tags nothing.
+DECOYS = ["sbi card", "sbi mutual fund", "sbi funds", "sbi general", "sbi shinsei",
+          "mahindra finance", "mahindra lifespace", "mahindra logistics", "mahindra holidays",
+          "reliance power", "reliance infrastructure", "reliance infra",
+          "reliance communications", "reliance capital", "reliance nippon"]
 
 # Aliases are normalised (lowercase, no accents or punctuation, "&" -> "and"), so write
 # them that way. Tickers and legal-name variants are generated automatically.
@@ -63,7 +70,7 @@ EXTRAS: dict[str, list[str]] = {
     "MAXHEALTH.NS":  ["max healthcare"],
     "ZYDUSLIFE.NS":  ["zydus"],
     "TORNTPHARM.NS": ["torrent pharma"],
-    "GODREJCP.NS":   ["godrej consumer"],
+    "GODREJCP.NS":   ["godrej consumer", "gcpl", "godrej professional", "godrej aer", "goodknight", "cinthol"],
     "PIDILITIND.NS": ["pidilite"],
     "AMBUJACEM.NS":  ["ambuja cement"],
     "CGPOWER.NS":    ["cg power"],
@@ -76,6 +83,7 @@ EXTRAS: dict[str, list[str]] = {
     "BAJAJHLDNG.NS": ["bajaj holdings"],
     "EICHERMOT.NS":  ["royal enfield"],
     "MOTHERSON.NS":  ["motherson"],
+    "GAIL.NS":       ["gail india"],
     "LODHA.NS":      ["lodha", "macrotech"],
     "HYUNDAI.NS":    ["hyundai india", "hmil"],
     # Tata Motors split in two: the bare name belongs to BOTH, so it is a collision on
@@ -124,6 +132,8 @@ class AliasMatcher:
         for sym, extra in extras.items():
             for a in extra:
                 owners[norm(a)].add(sym)
+        for d in DECOYS:
+            owners.setdefault(norm(d), set())
         self.owners = dict(owners)
         self._order = sorted(self.owners, key=len, reverse=True)   # longest first
         self._pats = {a: re.compile(rf"\b{re.escape(a)}\b") for a in self._order}
@@ -139,11 +149,13 @@ class AliasMatcher:
                     continue
                 taken.append((s, e))
                 owners = sorted(self.owners[alias])
+                if not owners:               # decoy
+                    continue
                 hits.append({"alias": alias, "symbols": owners,
                              "sure": len(owners) == 1 and alias not in AMBIGUOUS})
         return hits
 
-    def tag(self, headline: str) -> dict:
+    def tag(self, headline: str, wrap_at: int = 3) -> dict:
         text = norm(headline)
         resolved = []
         for h in self.match(headline):
@@ -155,7 +167,11 @@ class AliasMatcher:
                     syms, sure = (["TMPV.NS"] if pv else ["TMCV.NS"]), True
             resolved.append((syms, sure))
         distinct = sorted({s for syms, _ in resolved for s in syms})
-        if len(distinct) >= 3:
+        # an ambiguous word next to a clear alias of the same company is corroborated
+        # ("Trent ... Zudio", "Eternal ... Blinkit"), so it no longer needs an LLM check
+        sure_syms = {s for syms, sure in resolved if sure for s in syms}
+        resolved = [(syms, sure or set(syms) <= sure_syms) for syms, sure in resolved]
+        if len(distinct) >= wrap_at:
             return {"status": "market_wrap", "symbols": []}
         if any(not sure for _, sure in resolved):
             return {"status": "needs_check", "symbols": [], "candidates": distinct}

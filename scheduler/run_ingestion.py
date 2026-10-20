@@ -104,6 +104,7 @@ def cmd_daily(args):
     run_prices()             # yesterday's closing prices
     run_news(days=2)         # last 48hr news + BSE announcements
     run_scraped_news(days=2) # ET Markets + MoneyControl scrape
+    run_google_news()          # Google News scrape
     
     from agents.sentiment.agent import run_sentiment_agent
     run_sentiment_agent(days_back=2, limit=800)    # run sentiment agent on last 48hr news

@@ -33,12 +33,13 @@ WRAP_AT = 4                  # a headline naming this many universe companies is
 # Judgment calls from reading real results; edit freely. ad-hoc-news.de publishes templated
 # auto-generated stock blurbs; the other three are car-review sites, not company news.
 BLOCKED_PUBLISHERS = {"Gallinews", "ad-hoc-news.de", "CarLelo", "Cartoq", "MotorOctane",
-                      "CarTrade", "MarketsMojo"}     # last two: used-car ads, templated "rated Sell by" blurbs
+                      "CarTrade", "MarketsMojo", "AD HOC NEWS"}     # last two: used-car ads, templated "rated Sell by" blurbs
 _BLOCKED = {p.lower() for p in BLOCKED_PUBLISHERS}
 INDIC = re.compile(r"[\u0900-\u0DFF]")                  # Devanagari through Malayalam
 QUOTE_PAGE = re.compile(
     r"stock price, news, quote|(share|stock) price today|(gold|silver) (rate|price)s? today"
-    r"|^.{3,60} (share|stock) price$|for sale at (rs|\u20b9)", re.I)
+    r"|^.{3,60} (share|stock) price$|for sale at (rs|\u20b9)"
+    r"|stock forum|share price and techni|admit card|call letter", re.I)
 
 
 # ── query building ────────────────────────────────────────────────────────────
@@ -55,7 +56,11 @@ def query_terms(matcher: AliasMatcher, symbol: str) -> list[str]:
     """
     plain, risky = set(), set()
     for alias, owners in matcher.owners.items():
-        if symbol not in owners or alias.split()[-1] in {"limited", "ltd"}:
+        if symbol not in owners:
+            continue
+        # "x limited" adds nothing when "x" is a clear name, but "bosch ltd" is how headlines
+        # tell the company apart from the ambiguous word "bosch"
+        if alias.split()[-1] in {"limited", "ltd"} and alias.rsplit(" ", 1)[0] not in AMBIGUOUS:
             continue
         (risky if alias in AMBIGUOUS else plain).add(alias)
     terms = plain | {f"{a} {c}" for a in risky for c in CONTEXT_WORDS}
@@ -204,8 +209,11 @@ def ingest_google_news(days: int = 2, symbols: list[str] | None = None,
 
     status = "success" if not failed else ("partial" if rows else "failed")
     if not dry_run:
+        # keep the funnel in the log row so an empty stock can be explained without re-running
         log_ingestion(job_name="google_news", status=status, duration=time.time() - t0,
-                      inserted=len(rows), error=f"Failed: {failed}" if failed else None)
+                      inserted=len(rows), error=f"Failed: {failed}" if failed else None,
+                      metadata={"dropped": dict(stats),
+                                "per_company": {s: list(v) for s, v in per_company.items()}})
     step = max(1, len(rows) // 30)          # ~30 evenly spaced rows to eyeball
     return {
         "status": status, "inserted": 0 if dry_run else len(rows), "would_insert": len(rows),

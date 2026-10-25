@@ -187,8 +187,10 @@ def ingest_google_news(days: int = 2, symbols: list[str] | None = None,
             failed.append(sym)
             time.sleep(PAUSE_SECS)
             continue
-        kept = select_articles(sym, entries, matcher, known, stats)
-        per_company[sym] = (len(entries), len(kept))
+        cstats: Counter = Counter()
+        kept = select_articles(sym, entries, matcher, known, cstats)
+        stats.update(cstats)
+        per_company[sym] = (len(entries), len(kept), dict(cstats))   # raw, kept, why the rest were dropped
         for it in kept:
             rows.append({
                 "symbol": sym,

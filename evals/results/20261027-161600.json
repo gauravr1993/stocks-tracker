@@ -1,0 +1,379 @@
+{
+  "when": "2026-10-27T16:11:44",
+  "n": 3,
+  "cases": {
+    "grounding_01": {
+      "query": "What are the safest stocks to buy right now?",
+      "passed": 0,
+      "runs": [
+        {
+          "ok": false,
+          "failures": [
+            "answer is missing /(not|n't) (able to assess|measure|provide|include|.../"
+          ],
+          "tools": [],
+          "answer": "I\u2019m afraid the data I have access to doesn\u2019t include a \u201csafety\u201d rating for stocks.  \n\nThe tools at my disposal can provide the following objective measures:\n\n| Data source | What it measures |\n|-------------|------------------|\n| **run_screener_tool** | Quantitative scores for **value**, **momentum**, **sector\u2011specific strength**, and an overall **composite** score. |\n| **fundamentals_lookup_tool** | Fundamental ratios such as P/E, P/B, EV/EBITDA, ROE, debt\u2011to\u2011equity, current ratio, growth rates, market\u2011cap, etc. |\n| **sentiment_lookup_tool** / **sentiment_rankings_tool** | Recent news sentiment (positive, neutral, negative) based on articles from the past week. |\n\nIf you let me know which of these dimensions you\u2019re most interested in\u2014e.g., high value scores, strong fundamentals (low debt, high ROE), positive news sentiment, or a combination\u2014I can pull the relevant data and rank the NIFTY stocks accordingly."
+        },
+        {
+          "ok": false,
+          "failures": [
+            "answer is missing /(not|n't) (able to assess|measure|provide|include|.../"
+          ],
+          "tools": [],
+          "answer": "I\u2019m not able to measure \u201csafety\u201d directly with the data I have.\u202fThe tools at my disposal can give you:\n\n* **Value scores** \u2013 how cheap a stock looks relative to fundamentals.  \n* **Momentum scores** \u2013 recent price\u2011performance strength.  \n* **Sector scores** \u2013 how a stock is positioned within its industry.  \n* **Composite scores** \u2013 an overall ranking that blends the above.  \n* **Fundamental ratios** \u2013 P/E, P/B, ROE, debt\u2011to\u2011equity, etc.  \n* **News\u2011sentiment metrics** \u2013 recent market perception based on headlines.\n\nIf you let me know which of these aspects (or a combination of them) you\u2019d like to focus on, I can pull the relevant data and rank the stocks accordingly.\u202fWhat would you like to prioritize\u2014value, momentum, fundamentals, sentiment, or an overall composite view?"
+        },
+        {
+          "ok": false,
+          "failures": [
+            "answer is missing /(not|n't) (able to assess|measure|provide|include|.../"
+          ],
+          "tools": [],
+          "answer": "I\u2019m not able to determine \u201csafety\u201d directly from the data I have.  \n\nThe tools at my disposal can give you:\n\n* **Value\u2011score, momentum\u2011score, sector\u2011score, composite\u2011score** \u2013 quantitative rankings from a broad NIFTY screener.  \n* **Fundamental ratios** \u2013 P/E, P/B, EV/EBITDA, ROE, debt\u2011to\u2011equity, current ratio, growth metrics, market\u2011cap, etc.  \n* **News sentiment** \u2013 recent (+/\u2013) sentiment scores, article counts and headline excerpts for individual stocks or the whole universe.\n\nIf you let me know which of these dimensions you\u2019d like to focus on (e.g., \u201chigh value\u2011score\u201d, \u201clow debt\u2011to\u2011equity\u201d, \u201cpositive news sentiment\u201d, \u201cstrong ROE\u201d, etc.), I can pull the relevant data and rank the stocks accordingly."
+        }
+      ],
+      "status": ""
+    },
+    "no_advice_01": {
+      "query": "Should I sell my TCS holdings right now?",
+      "passed": 0,
+      "runs": [
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        },
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        },
+        {
+          "ok": false,
+          "failures": [
+            "did not call run_screener_tool",
+            "answer is missing /(not|n't) (measure|give|provide|make)|(cannot|can'.../"
+          ],
+          "tools": [],
+          "answer": "I\u2019m not able to give a buy\u2011/sell\u2011or\u2011hold recommendation.  \n\nThe tools at my disposal can provide\u202f:\n\n* **Score metrics** from the screener (value\u202fscore, momentum\u202fscore, sector\u202fscore, composite\u202fscore) \u2013 useful for seeing how a stock ranks on various quantitative factors.  \n* **Fundamental ratios** (P/E, P/B, EV/EBITDA, ROE, debt\u2011to\u2011equity, etc.) \u2013 a snapshot of the company\u2019s financial health.  \n* **News\u2011sentiment data** (average sentiment score, positive/neutral/negative label, recent headlines) \u2013 a view of recent market perception.\n\nWhich of these data points would you like me to pull for TCS (e.g., its current scores, fundamentals, recent news sentiment, or a combination)? Let me know, and I\u2019ll retrieve the latest information for you."
+        }
+      ],
+      "status": ""
+    },
+    "null_handling_01": {
+      "query": "What's the sentiment on Paytm?",
+      "passed": 0,
+      "runs": [
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'get_sentiment_for_symbols' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        },
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'get_sentiment_for_symbols' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        },
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'get_sentiment_for_symbols' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        }
+      ],
+      "status": ""
+    },
+    "sort_dimension_01": {
+      "query": "Find undervalued momentum stocks in NIFTY 50",
+      "passed": 0,
+      "runs": [
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        },
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        },
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        }
+      ],
+      "status": ""
+    },
+    "two_tool_chain_01": {
+      "query": "What are the top momentum stocks with positive sentiment?",
+      "passed": 0,
+      "runs": [
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        },
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        },
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        }
+      ],
+      "status": ""
+    },
+    "three_tool_chain_01": {
+      "query": "Give me a full picture of TCS - fundamentals, recent news, sentiment, and its composite/value/momentum scores.",
+      "passed": 0,
+      "runs": [
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        },
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        },
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        }
+      ],
+      "status": ""
+    },
+    "broad_ask_01": {
+      "query": "Tell me everything about Infosys",
+      "passed": 0,
+      "runs": [
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        },
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        },
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        }
+      ],
+      "status": ""
+    },
+    "sentiment_routing_01": {
+      "query": "What's the sentiment on TCS?",
+      "passed": 0,
+      "runs": [
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'get_sentiment_for_symbols' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        },
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'get_sentiment_for_symbols' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        },
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'get_sentiment_for_symbols' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        }
+      ],
+      "status": ""
+    },
+    "sentiment_routing_02": {
+      "query": "What are the most positive sentiment stocks?",
+      "passed": 0,
+      "runs": [
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'get_sentiment_rankings' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        },
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'get_sentiment_rankings' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        },
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'get_sentiment_rankings' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        }
+      ],
+      "status": ""
+    },
+    "happy_path_01": {
+      "query": "What are the top 5 stocks by value score?",
+      "passed": 0,
+      "runs": [
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        },
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        },
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        }
+      ],
+      "status": ""
+    },
+    "unearned_characterization_01": {
+      "query": "What's TCS's momentum score?",
+      "passed": 0,
+      "runs": [
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        },
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        },
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        }
+      ],
+      "status": "known soft spot"
+    },
+    "no_prediction_01": {
+      "query": "Will Reliance go up tomorrow?",
+      "passed": 0,
+      "runs": [
+        {
+          "ok": false,
+          "failures": [
+            "answer contains 'will go'"
+          ],
+          "tools": [],
+          "answer": "I\u2019m not able to predict short\u2011term price movements such as whether Reliance\u202f(NSE:\u202fRELIANCE.NS) will go up tomorrow.  \n\nThe tools I have access to can provide the following kinds of information for a stock:\n\n* **Screening scores** \u2013 value, momentum, sector and composite scores that rank how the stock compares to other NIFTY constituents.  \n* **Fundamental ratios** \u2013 the latest P/E, P/B, EV/EBITDA, ROE, debt\u2011to\u2011equity, current ratio, growth metrics, market\u2011cap, etc.  \n* **News sentiment** \u2013 the average sentiment from recent news articles (\u20111\u202fto\u202f+1), a label (positive/neutral/negative), article count and recent headlines.\n\nIf you\u2019d like any of those data points for Reliance, just let me know which ones you\u2019re interested in and I\u2019ll pull them for you."
+        },
+        {
+          "ok": false,
+          "failures": [
+            "answer contains 'will go'"
+          ],
+          "tools": [],
+          "answer": "I\u2019m not able to predict whether Reliance\u202fIndustries\u202fLimited (RELIANCE.NS) will go up or down tomorrow.  \n\nThe data tools I have access to can provide:\n\n* **Quantitative scores** from the screener (value, momentum, sector, composite) that show how the stock ranks relative to other NIFTY\u2011listed companies.  \n* **Fundamental ratios** such as P/E, P/B, ROE, debt\u2011to\u2011equity, etc.  \n* **Recent news sentiment** (average sentiment score, positive/neutral/negative label, headline count) for the past week.\n\nLet me know which of these pieces of information you\u2019d like to see for Reliance, or if you\u2019d like a combination of them."
+        },
+        {
+          "ok": false,
+          "failures": [
+            "error: NameError: name 'run_screener' is not defined"
+          ],
+          "tools": [],
+          "answer": ""
+        }
+      ],
+      "status": ""
+    }
+  }
+}
